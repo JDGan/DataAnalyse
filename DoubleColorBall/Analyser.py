@@ -213,34 +213,38 @@ def genetic_optimize_least(domain, costf, exclude=None, popsize=50, step=1, mutp
     # 主循环
     scores = []
     for i in range(maxiter):
-        ls = [','.join(str(i) for i in v) for v in pop]
-        vs = list(set(ls))
-        ss = [list(int(i) for i in v.split(',')) for v in vs]
-
-        scores = [(costf(v, domain), v) for v in ss]
+        # print "loop found winner"
+        scores = [(costf(v, domain), v) for v in pop]
         scores.sort()
         ranked = [v for (s, v) in scores]
 
         # 从纯粹的胜出者开始
-        pop = ranked[0:topelite]
+        winners = ranked[0:topelite]
 
         # 添加变异和配对后的胜出者
-        while len(pop) < popsize:
+        # print "process generate"
+        while len(winners) < popsize:
             if random.random() < mutprob:
                 # 变异
                 c = random.randint(0, topelite)
-                pop.append(mutate(ranked[c]))
+                winners.append(mutate(ranked[c]))
             else:
                 # 交叉
                 c1 = random.randint(0, topelite)
                 c2 = random.randint(0, topelite)
-                pop.append(crossover(ranked[c1], ranked[c2]))
+                winners.append(crossover(ranked[c1], ranked[c2]))
+        # 种群去重复
+        pop = handleDataSource(winners,6)
+    # print len(pop)
+    scores = [(costf(v, domain), v) for v in pop]
+    scores.sort()
     return scores
 
 
 print time.clock()
 
-domain = load_ball_data_from_file("2015.txt")
+domain = load_ball_data_from_file("2016.txt")
+domain += load_ball_data_from_file("2015.txt")
 domain += load_ball_data_from_file("2014.txt")
 domain += load_ball_data_from_file("2013.txt")
 domain += load_ball_data_from_file("2012.txt")
@@ -260,21 +264,27 @@ print time.clock()
 # b = annealing_optimize(domain,analyse_ball_data)
 # b = genetic_optimize(domain, analyse_ball_data)
 
-a = [[1,2,3],[2,3,1],[3,2,1],[1,2,3]]
+def handleDataSource(array , index):
+    dataSource = []
+    for arr in array:
+        if len(arr) <= index:
+            print "Error index out of range."
+            continue
+        l = arr[:index]
+        l.sort()
+        # print l
+        newArr = l+arr[index:]
+        dataSource.append(','.join(str(i) for i in newArr))
+    dataSource = list(set(dataSource))
+    newlist = [v.split(',') for v in dataSource]
+    # print "new: %d" % len(newlist)
+    return [list(int(i) for i in v) for v in newlist]
 
-
-ls = [','.join(sorted(str(i) for i in v)) for v in a]
-vs = list(set(ls))
-ss = [list(int(i) for i in v.split(',')) for v in vs]
-print ss
-
-
-# bestResults = genetic_optimize_least(domain, analyse_ball_data)
-# # b = bestResults[0]
-# for i in range(10):
-#     b = bestResults[i]
-#     print b[1] , " +$:%d" % b[0] , "-$:%d" % (len(domain) * 2)
-# print time.clock()
+bestResults = genetic_optimize_least(domain, analyse_ball_data)
+for i in range(10):
+    b = bestResults[i]
+    print b[1] , " +$:%d" % b[0] , "-$:%d" % (len(domain) * 2)
+print time.clock()
 
 # v = analyseBallData(t,domain)
 # print v
