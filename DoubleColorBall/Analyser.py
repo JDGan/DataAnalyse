@@ -5,7 +5,6 @@ import math
 import timeit
 import time
 
-
 def analyse_ball_data(data, domain, check=False):
     s = 0
     """
@@ -55,12 +54,6 @@ for i in range(1, 33):
 BlueBalls = []
 for i in range(1, 16):
     BlueBalls.append(i)
-
-
-def generateRandomBallData():
-    v = random.sample(RedBalls, 6) + random.sample(BlueBalls, 1)
-    return v
-
 
 def random_optimize(domain, costf, count=1000):
     best = 0
@@ -169,8 +162,8 @@ def genetic_optimize(domain, costf, popsize=50, step=1, mutprob=0.4, elite=0.2, 
     print scores[0]
     return scores[0][1]
 
-
-def genetic_optimize(domain, costf, isDesc=False, popsize=50, step=1, mutprob=0.4, elite=0.2, maxiter=100):
+# sampleGenerator 样本生成器,指导如何生成单一样本
+def genetic_optimize(domain, costf, sampleGenerator, isDesc=False, popsize=50, step=1, mutprob=0.4, elite=0.2, maxiter=100):
     # 新变异
     def mutate(vec):
         v = copy.deepcopy(vec)
@@ -198,7 +191,8 @@ def genetic_optimize(domain, costf, isDesc=False, popsize=50, step=1, mutprob=0.
     # 构造初始种群
     pop = []
     for i in range(popsize):
-        vec = copy.deepcopy(domain[random.randint(0, len(domain) - 1)])
+        vec = sampleGenerator(domain)
+        # vec = copy.deepcopy(domain[random.randint(0, len(domain) - 1)])
         pop.append(vec)
 
     # 每一代的胜出者数量
@@ -233,6 +227,15 @@ def genetic_optimize(domain, costf, isDesc=False, popsize=50, step=1, mutprob=0.
         # 种群去重复
         pop = handleDataSource(winners,6)
     return scores
+
+def randomSubDataSet(domain=[]):
+    vec = domain[random.randint(0, len(domain) - 1)]
+    return vec
+
+def generateRandomBallData(domain=[]):
+    v = random.sample(RedBalls, 6) + random.sample(BlueBalls, 1)
+    return v
+
 # 去重复
 def handleDataSource(array , index):
     dataSource = []

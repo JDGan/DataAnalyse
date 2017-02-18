@@ -26,6 +26,7 @@ for name in dataSourceFileNames:
     domain += load_ball_data_from_file(name)
 
 print time.clock()
+# 通过下面的算法计算出最佳表现或最差表现的双色球号码
 # 随机算法
 # b = Analyser.random_optimize(domain,Analyser.analyse_ball_data)
 # 坡度算法
@@ -35,7 +36,12 @@ print time.clock()
 # 遗传算法
 # b = Analyser.genetic_optimize(domain, Analyser.analyse_ball_data)
 
-bestResults = Analyser.genetic_optimize(domain, Analyser.analyse_ball_data, True)
+bestResults = Analyser.genetic_optimize(domain
+, Analyser.analyse_ball_data
+, Analyser.generateRandomBallData
+# , Analyser.randomSubDataSet
+, False)
+
 for i in range(10):
     b = bestResults[i]
     print b[1] , " +$:%d" % b[0] , "-$:%d" % (len(domain) * 2)
