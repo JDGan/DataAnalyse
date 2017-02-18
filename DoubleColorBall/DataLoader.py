@@ -1,4 +1,4 @@
-
+# 废弃
 import re
 
 class Result:
@@ -98,5 +98,3 @@ def splitWithIndex(string,i):
         lastMX = newMX
         newMX += i
     return arr
-
-formatBallDataFile("2016.txt")

@@ -1,4 +1,5 @@
 # coding=utf-8
+# 废弃
 import DataLoader , random , math ,copy
 
 """ CostMethod """

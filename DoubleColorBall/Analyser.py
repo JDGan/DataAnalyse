@@ -1,5 +1,4 @@
 # coding=utf-8
-from DataCenter import load_ball_data_from_file
 import random
 import copy
 import math
@@ -171,11 +170,8 @@ def genetic_optimize(domain, costf, popsize=50, step=1, mutprob=0.4, elite=0.2, 
     return scores[0][1]
 
 
-def genetic_optimize_least(domain, costf, exclude=None, popsize=50, step=1, mutprob=0.4, elite=0.2, maxiter=100):
+def genetic_optimize(domain, costf, isDesc=False, popsize=50, step=1, mutprob=0.4, elite=0.2, maxiter=100):
     # 新变异
-    if exclude is None:
-        exclude = [[1, 1, 1, 1, 1, 1, 1]]
-
     def mutate(vec):
         v = copy.deepcopy(vec)
         i = random.randint(0, 6)
@@ -197,8 +193,6 @@ def genetic_optimize_least(domain, costf, exclude=None, popsize=50, step=1, mutp
         sample_blue = list(set(r1[i:]).union(set(r2[i:])))
         v += random.sample(sample_red, i)
         v += random.sample(sample_blue, 1)
-        if v in exclude:
-            v = crossover(r1, r2)
         return v
 
     # 构造初始种群
@@ -215,7 +209,10 @@ def genetic_optimize_least(domain, costf, exclude=None, popsize=50, step=1, mutp
     for i in range(maxiter):
         # print "loop found winner"
         scores = [(costf(v, domain), v) for v in pop]
-        scores.sort()
+        if isDesc:
+            scores.sort(reverse=True)
+        else:
+            scores.sort()
         ranked = [v for (s, v) in scores]
 
         # 从纯粹的胜出者开始
@@ -235,35 +232,8 @@ def genetic_optimize_least(domain, costf, exclude=None, popsize=50, step=1, mutp
                 winners.append(crossover(ranked[c1], ranked[c2]))
         # 种群去重复
         pop = handleDataSource(winners,6)
-    # print len(pop)
-    scores = [(costf(v, domain), v) for v in pop]
-    scores.sort()
     return scores
-
-
-print time.clock()
-
-domain = load_ball_data_from_file("2016.txt")
-domain += load_ball_data_from_file("2015.txt")
-domain += load_ball_data_from_file("2014.txt")
-domain += load_ball_data_from_file("2013.txt")
-domain += load_ball_data_from_file("2012.txt")
-domain += load_ball_data_from_file("2011.txt")
-domain += load_ball_data_from_file("2010.txt")
-domain += load_ball_data_from_file("2009.txt")
-domain += load_ball_data_from_file("2008.txt")
-domain += load_ball_data_from_file("2007.txt")
-domain += load_ball_data_from_file("2006.txt")
-domain += load_ball_data_from_file("2005.txt")
-domain += load_ball_data_from_file("2004.txt")
-domain += load_ball_data_from_file("2003.txt")
-
-print time.clock()
-# b = random_optimize(domain,analyse_ball_data)
-# b = hill_climb(domain,analyse_ball_data)
-# b = annealing_optimize(domain,analyse_ball_data)
-# b = genetic_optimize(domain, analyse_ball_data)
-
+# 去重复
 def handleDataSource(array , index):
     dataSource = []
     for arr in array:
@@ -279,12 +249,3 @@ def handleDataSource(array , index):
     newlist = [v.split(',') for v in dataSource]
     # print "new: %d" % len(newlist)
     return [list(int(i) for i in v) for v in newlist]
-
-bestResults = genetic_optimize_least(domain, analyse_ball_data)
-for i in range(10):
-    b = bestResults[i]
-    print b[1] , " +$:%d" % b[0] , "-$:%d" % (len(domain) * 2)
-print time.clock()
-
-# v = analyseBallData(t,domain)
-# print v
